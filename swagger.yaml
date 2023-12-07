@@ -1,0 +1,314 @@
+openapi: 3.0.0
+info:
+  description: API for tecnical test
+  version: "1.0.0"
+  title: 4PPE
+tags:
+  - name: Users
+    description: Operations with users
+  - name: Houses
+    description: Operations houses
+paths:
+  /users:
+    get:
+      tags:
+        - Users
+      summary: returns all users
+      responses:
+        '200':
+          description: return all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/user'
+        '204':
+          description: No content
+        '500':
+          description: internal server error
+          
+  /users/{username}:
+     get:
+      tags:
+        - Users
+      summary: returns one user
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: return all info of requiered user
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/user'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '500':
+          description: internal server error  
+  /houses/{username}:
+     get:
+      tags:
+        - Houses
+      summary: obtains all user's houses and you can filter by city, street and country
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+        - name: city
+          in: query
+          description: city name (optional)
+          schema:
+            type: string
+        - name: street
+          in: query
+          description: Street address (optional)
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: country name (optional)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: returns selected houses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/house'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '500':
+          description: internal server error         
+  /newuser:
+    post:
+      tags:
+      - Users
+      summary: Create new user
+      requestBody:
+        description: userdata
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '201':
+          description: User creaded sucesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: Bad request   
+        '404':
+          description: Not found
+        '409':
+          description: Username not available
+        '500':
+          description: internal server error               
+  /updateuser{username}:
+    patch:
+      tags:
+      - Users
+      summary: updates partially a user
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        
+      responses:
+        '202':
+          description: User modified sucesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '500':
+          description: internal server error             
+  /fullupdateuser{username}:
+    put:
+      tags:
+        - Users
+      summary: updates fully a user( no sense, its better create a new one and delete the old one)
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: new email (optional)
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: new pasword (opcional)
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: User modified sucesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '500':
+          description: internal server error      
+  /housesOperations/{username}:
+    post:
+      tags:
+        - Houses
+      summary: create new house for the specified user
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: new house
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/house'
+      responses:
+        '201':
+          description: house created
+        '400':
+          description: Bad request  
+        '500':
+          description: internal server error             
+    delete:
+      tags:
+        - Houses
+      summary: delete one user house
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+        - name: houseId
+          in: query
+          description: House id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: house deleted
+        '400':
+          description: Bad request  
+        '500':
+          description: internal server error    
+    patch:
+      tags:
+        - Houses
+      summary: updates partially a house
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: new house
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/house'
+      responses:
+        '200':
+          description: House updated sucesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/house'
+        '400':
+          description: Bad request  
+        '500':
+          description: internal server error  
+  /deleteuser/{username}:      
+     delete:
+      tags:
+        - Users
+      summary: delete one user 
+      parameters:
+        - name: username
+          in: path
+          description: user's ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: user deleted    
+        '403':
+          description: the user still has houses
+        '400':
+          description: Bad request  
+        '500':
+          description: internal server error  
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    house:
+      type: object
+      properties:
+        id:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        country:
+          type: string
+        owner:
+          type: string
